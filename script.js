@@ -1,9 +1,11 @@
+```javascript
 // Configuration
 // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
 const API_URL = "https://script.google.com/macros/s/AKfycbzzLClvFDsXlovOinbHyJN6yvXP9tmh4W8OQM5uZiA9VAfhMYYP5JjcCmxeWQ8hmHKd/exec";
 
 // Elements
-const scannerContainer = "reader";
+const scannerContainerId = "reader";
+const startScreen = document.getElementById('start-screen');
 const notification = document.getElementById('notification');
 const notificationMsg = document.getElementById('notification-msg');
 
@@ -18,19 +20,29 @@ const firstScanTime = document.getElementById('first-scan-time');
 const printTimestamp = document.getElementById('print-timestamp');
 
 let currentTicketId = null;
-let html5QrcodeScanner = null;
+let html5QrCode = null;
 
 // Audio
 const beepSound = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_2d00465249.mp3"); // Simple beep
 
 // Initialize Scanner
-function startScanner() {
-    html5QrcodeScanner = new Html5QrcodeScanner(
-        scannerContainer,
-        { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
-        /* verbose= */ false
-    );
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+function startCamera() {
+    startScreen.classList.add('hidden');
+    
+    html5QrCode = new Html5Qrcode(scannerContainerId);
+    
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+    
+    // Explicitly request back camera
+    html5QrCode.start(
+        { facingMode: "environment" }, 
+        config, 
+        onScanSuccess
+    ).catch(err => {
+        console.error("Error starting scanner", err);
+        showNotification("Gagal akses kamera: " + err, "red");
+        startScreen.classList.remove('hidden'); // Show button again if failed
+    });
 }
 
 function onScanSuccess(decodedText, decodedResult) {
@@ -39,16 +51,11 @@ function onScanSuccess(decodedText, decodedResult) {
     // Play sound
     beepSound.play().catch(e => console.log("Audio play failed", e));
 
-    // Stop scanning temporarily or just pause logic? 
-    // Usually better to pause to prevent multiple hits while modal is open.
-    html5QrcodeScanner.clear();
+    // Pause scanning
+    html5QrCode.pause(); 
 
     // Fetch Data
     fetchTicket(decodedText);
-}
-
-function onScanFailure(error) {
-    // frequent, ignore
 }
 
 // Fetch Logic
@@ -69,14 +76,19 @@ async function fetchTicket(id) {
             openModal(result.data, result.message === "Ticket already used");
         } else {
             showNotification("Error: " + result.message, "red");
-            // Restart scanner after error
-            setTimeout(startScanner, 2000);
+            setTimeout(() => {
+                if(html5QrCode) html5QrCode.resume();
+                currentTicketId = null;
+            }, 2000); 
         }
 
     } catch (err) {
         console.error(err);
         showNotification("Gagal menghubungi server.", "red");
-        setTimeout(startScanner, 2000);
+        setTimeout(() => {
+            if(html5QrCode) html5QrCode.resume();
+            currentTicketId = null;
+        }, 2000);
     }
 }
 
@@ -113,12 +125,12 @@ function openModal(data, isAlreadyScanned) {
 function closeModal() {
     modal.classList.add('hidden');
     currentTicketId = null;
-    startScanner(); // Restart scanner
+    if(html5QrCode) html5QrCode.resume(); // Resume scanner
 }
 
 function showNotification(msg, color) {
     notificationMsg.innerText = msg;
-    notification.className = `mt-4 px-4 py-3 rounded relative w-full max-w-md bg-${color}-100 border border-${color}-400 text-${color}-700`;
+    notification.className = `mt - 4 px - 4 py - 3 rounded relative w - full max - w - md bg - ${ color } -100 border border - ${ color } -400 text - ${ color } -700`;
     notification.classList.remove('hidden');
 
     // Auto hide after 3 seconds
@@ -154,8 +166,8 @@ async function printTicket() {
 
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
-    startScanner();
-
+    // startScanner(); // Removed auto-start to allow user interaction first
+    
     // Register Service Worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js')
