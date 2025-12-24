@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Scan PWA</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTML5-QRCode -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4F46E5">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white p-4 shadow-md sticky top-0 z-50">
+        <h1 class="text-xl font-bold text-center">Ticket Scanner</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4">
+
+        <!-- Scanner Section -->
+        <div id="scanner-container" class="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden">
+            <div id="reader" class="w-full"></div>
+            <div class="p-4 text-center text-gray-600 text-sm">
+                Arahkan kamera ke QR Code tiket.
+            </div>
+
+            <!-- Manual Input Trigger (Optional - hidden mainly for purity as per req) -->
+            <!-- <div class="p-2 border-t">
+                 <input type="text" id="manual-input" placeholder="Input ID Manual" class="border p-1 rounded w-full">
+            </div> -->
+        </div>
+
+        <!-- Status/Notification Area -->
+        <div id="notification" class="hidden mt-4 px-4 py-3 rounded relative w-full max-w-md" role="alert">
+            <span class="block sm:inline" id="notification-msg"></span>
+        </div>
+
+    </main>
+
+    <!-- Modal Preview Ticket -->
+    <div id="ticket-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+                onclick="closeModal()"></div>
+
+            <!-- Modal Panel -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div id="ticket-card"
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+
+                <!-- Ticket Content -->
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 relative">
+                    <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 print:hidden"
+                        onclick="closeModal()">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
+                    <div id="ticket-design"
+                        class="border-2 rounded-xl p-6 flex flex-col items-center justify-center space-y-4 text-center">
+                        <!-- Dynamic Class for VIP/Reguler will be added here -->
+
+                        <h2 class="text-2xl font-bold uppercase tracking-wide" id="ticket-class">KELAS</h2>
+
+                        <div class="text-4xl font-extrabold my-2" id="ticket-seat">--</div>
+
+                        <div class="text-lg font-medium text-gray-800" id="ticket-name">Nama Peserta</div>
+
+                        <div class="text-sm text-gray-500 font-mono mt-4">ID: <span id="ticket-id">---</span></div>
+
+                        <!-- Already Scanned Warning -->
+                        <div id="scanned-warning"
+                            class="hidden mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded relative">
+                            <strong>PERINGATAN!</strong><br>
+                            Tiket sudah scan pada: <span id="first-scan-time"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer / Actions -->
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse print:hidden">
+                    <button type="button" onclick="printTicket()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Print Tiket
+                    </button>
+                    <button type="button" onclick="closeModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Tutup
+                    </button>
+                </div>
+
+                <!-- Print Only Footer -->
+                <div class="hidden print:block text-center text-xs text-gray-400 mt-4 pb-2">
+                    Printed at: <span id="print-timestamp"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

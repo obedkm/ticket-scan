@@ -1,0 +1,62 @@
+/* Custom Styles */
+
+/* Hide everything else on print, only show the ticket card */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    
+    #ticket-modal, #ticket-modal * {
+        visibility: visible;
+    }
+    
+    #ticket-modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: white; /* Ensure background is white for print */
+        display: block !important; /* Force display flex/block override */
+        padding: 0;
+        margin: 0;
+    }
+    
+    #ticket-card {
+        box-shadow: none;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        border: none;
+        transform: none !important;
+    }
+
+    /* Print Footer Text */
+    .print\:block {
+        display: block !important;
+    }
+    
+    .print\:hidden {
+        display: none !important;
+    }
+}
+
+/* Base Styles */
+#reader {
+    width: 100%;
+    min-height: 300px;
+    background: #000;
+}
+
+/* Ticket Design Specifics */
+.ticket-vip {
+    background-color: #FFD700; /* Gold */
+    color: black;
+    border-color: #B8860B;
+}
+
+.ticket-reguler {
+    background-color: #F0F8FF; /* AliceBlue */
+    color: #333;
+    border-color: #ADD8E6;
+}
