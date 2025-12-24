@@ -1,4 +1,4 @@
-```javascript
+
 // Configuration
 // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
 const API_URL = "https://script.google.com/macros/s/AKfycbzzLClvFDsXlovOinbHyJN6yvXP9tmh4W8OQM5uZiA9VAfhMYYP5JjcCmxeWQ8hmHKd/exec";
@@ -28,15 +28,15 @@ const beepSound = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_2d00
 // Initialize Scanner
 function startCamera() {
     startScreen.classList.add('hidden');
-    
+
     html5QrCode = new Html5Qrcode(scannerContainerId);
-    
+
     const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-    
+
     // Explicitly request back camera
     html5QrCode.start(
-        { facingMode: "environment" }, 
-        config, 
+        { facingMode: "environment" },
+        config,
         onScanSuccess
     ).catch(err => {
         console.error("Error starting scanner", err);
@@ -52,7 +52,7 @@ function onScanSuccess(decodedText, decodedResult) {
     beepSound.play().catch(e => console.log("Audio play failed", e));
 
     // Pause scanning
-    html5QrCode.pause(); 
+    html5QrCode.pause();
 
     // Fetch Data
     fetchTicket(decodedText);
@@ -77,16 +77,16 @@ async function fetchTicket(id) {
         } else {
             showNotification("Error: " + result.message, "red");
             setTimeout(() => {
-                if(html5QrCode) html5QrCode.resume();
+                if (html5QrCode) html5QrCode.resume();
                 currentTicketId = null;
-            }, 2000); 
+            }, 2000);
         }
 
     } catch (err) {
         console.error(err);
         showNotification("Gagal menghubungi server.", "red");
         setTimeout(() => {
-            if(html5QrCode) html5QrCode.resume();
+            if (html5QrCode) html5QrCode.resume();
             currentTicketId = null;
         }, 2000);
     }
@@ -125,12 +125,12 @@ function openModal(data, isAlreadyScanned) {
 function closeModal() {
     modal.classList.add('hidden');
     currentTicketId = null;
-    if(html5QrCode) html5QrCode.resume(); // Resume scanner
+    if (html5QrCode) html5QrCode.resume(); // Resume scanner
 }
 
 function showNotification(msg, color) {
     notificationMsg.innerText = msg;
-    notification.className = `mt - 4 px - 4 py - 3 rounded relative w - full max - w - md bg - ${ color } -100 border border - ${ color } -400 text - ${ color } -700`;
+    notification.className = `mt - 4 px - 4 py - 3 rounded relative w - full max - w - md bg - ${color} -100 border border - ${color} -400 text - ${color} -700`;
     notification.classList.remove('hidden');
 
     // Auto hide after 3 seconds
@@ -167,7 +167,7 @@ async function printTicket() {
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
     // startScanner(); // Removed auto-start to allow user interaction first
-    
+
     // Register Service Worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js')
