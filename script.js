@@ -166,7 +166,11 @@ async function printTicket() {
 
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
-    // startScanner(); // Removed auto-start to allow user interaction first
+    // Attach listener via JS instead of HTML attribute
+    const startBtn = document.getElementById('start-btn');
+    if (startBtn) {
+        startBtn.addEventListener('click', startCamera);
+    }
 
     // Register Service Worker
     if ('serviceWorker' in navigator) {
